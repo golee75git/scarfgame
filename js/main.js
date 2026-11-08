@@ -32,6 +32,7 @@
   var pileBtn = document.getElementById("pile");
   var retryBtn = document.getElementById("retry");
   var leaveBtn = document.getElementById("leave");
+  var visitCount = document.getElementById("visit-count");
   var rustle = new Audio("sound/1.wav");
   var resultModal = document.getElementById("result-modal");
   var resultModalMessage = document.getElementById("result-modal-message");
@@ -529,5 +530,21 @@
     closeResultModal();
   });
 
+  function showVisits() {
+    if (!visitCount) return;
+    fetch("api/visits", { method: "POST" })
+      .then(function (response) {
+        if (!response.ok) throw new Error("unavailable");
+        return response.json();
+      })
+      .then(function (body) {
+        var count = body && body.visits;
+        if (typeof count !== "number" || !Number.isInteger(count) || count < 0) return;
+        visitCount.textContent = "방문 " + String(count);
+      })
+      .catch(function () {});
+  }
+
   render();
+  showVisits();
 }());

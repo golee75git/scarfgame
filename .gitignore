@@ -2,3 +2,6 @@ android/build/
 *.apk
 *.idsig
 .bkit/
+.vercel
+.env
+.env.*
