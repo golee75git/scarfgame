@@ -32,6 +32,10 @@ if (Test-Path $clip) {
   $soundDir = Join-Path $assets "sound"
   New-Item -ItemType Directory -Path $soundDir | Out-Null
   Copy-Item $clip (Join-Path $soundDir "1.wav")
+  $selectClip = Join-Path $root "sound\select.wav"
+  if (Test-Path $selectClip) {
+    Copy-Item $selectClip (Join-Path $soundDir "select.wav")
+  }
 }
 
 $markDir = Join-Path $work "res\drawable"

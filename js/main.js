@@ -34,6 +34,7 @@
   var leaveBtn = document.getElementById("leave");
   var visitCount = document.getElementById("visit-count");
   var rustle = new Audio("sound/1.wav");
+  var selectSound = new Audio("sound/select.wav");
   var resultModal = document.getElementById("result-modal");
   var resultModalMessage = document.getElementById("result-modal-message");
   var resultModalClose = document.getElementById("result-modal-close");
@@ -427,6 +428,7 @@
     var result = ScarfGame.toggleSelection(state, cardId);
     state = result.state;
     notice = result.notice;
+    if (state.selectedIds.length > before) playSelect();
     if (state.phase === "playing" && before < ScarfData.selectLimit && state.selectedIds.length === ScarfData.selectLimit) {
       settlePick();
       return;
@@ -440,6 +442,12 @@
   function playRustle() {
     rustle.currentTime = 0;
     var playing = rustle.play();
+    if (playing && typeof playing.catch === "function") playing.catch(function () {});
+  }
+
+  function playSelect() {
+    selectSound.currentTime = 0;
+    var playing = selectSound.play();
     if (playing && typeof playing.catch === "function") playing.catch(function () {});
   }
 
