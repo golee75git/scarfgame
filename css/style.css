@@ -99,8 +99,8 @@ h1 {
 .intro::before {
   content: "";
   display: block;
-  aspect-ratio: 2086 / 282;
-  background: url("../images/top.png") center / 100% 100% no-repeat;
+  aspect-ratio: 2099 / 380;
+  background: url("../images/top1.png") center / 100% 100% no-repeat;
 }
 
 .grid {
