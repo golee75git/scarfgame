@@ -69,7 +69,7 @@ h1 {
 .rule {
   margin: 0 0 8px;
   font-size: 1.05rem;
-  text-align: center;
+  text-align: left;
   word-break: keep-all;
 }
 
