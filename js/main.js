@@ -269,8 +269,48 @@
     if (resultModal.open) resultModal.close();
   }
 
+  var lastVerdict = "";
+  var passLines = [
+    "여섯 장 전부 다르게! 손님, 눈썰미 좋으시네!",
+    "겹치는 게 하나도 없네! 아주 야무지게 골랐어!",
+    "이야~ 여섯 장 깔끔하게! 포장해드릴게!",
+    "손님은 골라만 가요~ 감탄은 내가 할게!",
+    "이렇게 잘 고르면 내가 섞은 보람이 있지!",
+    "여섯 장 다 골랐네! 오늘 장보기 대성공!",
+    "하나같이 다른 걸로! 보는 눈이 있으셔!",
+    "내가 섞고, 손님이 싹 골랐네!",
+    "이야~ 이 많은 데서 안 겹치게 골랐어!",
+    "손님, 내일부터 여기서 같이 일합시다!",
+    "이 솜씨면 눈 감고도 고르시겠네!",
+    "여섯 장 합격! 스카프 고르기 달인이네!"
+  ];
+  var missLines = [
+    "정신차리세요!",
+    "어허~ 같은 걸 또 집었네!",
+    "손님~ 취향이 아주 한결같으시네!",
+    "아까부터 그것만 눈에 들어와요?",
+    "똑같은 거 두 장이면 쌍둥이로 하시게?",
+    "그 스카프가 손님 마음에 쏙 들었나 봐!",
+    "이건 이미 골랐으니 다른 보물 찾아봐요!",
+    "색깔에 속았지? 아까 그 녀석이야!",
+    "내가 섞어놔도 그걸 또 찾아내네!"
+  ];
+  var missAgainLines = [
+    "또 그거야? 이제 이름도 지어주겠네!",
+    "손님~ 그 스카프랑 정들겠어!",
+    "이 정도면 고르는 게 아니라 재회하는 거야!"
+  ];
+
+  function pickLine(lines) {
+    return lines[Math.floor(Math.random() * lines.length)];
+  }
+
   function showResultModal(ok) {
-    resultModalMessage.textContent = ok ? "계산" : "정신차리세요";
+    var message = ok
+      ? pickLine(passLines)
+      : pickLine(lastVerdict === "fail" ? missAgainLines : missLines);
+    lastVerdict = ok ? "pass" : "fail";
+    resultModalMessage.textContent = message;
     resultModalClose.textContent = ok ? "다음단계로" : "다시고르기";
     closeResultModal();
     resultModal.showModal();
@@ -472,6 +512,7 @@
     pileSpots = {};
     pileHeight = 0;
     notice = "";
+    lastVerdict = "";
     closeResultModal();
     render();
   }
