@@ -561,11 +561,14 @@ h1 {
   position: fixed;
   inset: 0;
   z-index: 30;
-  width: max-content;
+  width: min(max-content, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
   height: max-content;
+  max-height: calc(100dvh - 24px);
   margin: auto;
   border: 0;
-  padding: 28px 40px;
+  padding: 22px 20px;
+  overflow: auto;
   background: var(--indigo);
   color: #f4efe6;
   text-align: center;
@@ -579,8 +582,11 @@ h1 {
 #result-modal p,
 #note-modal p {
   margin: 0 0 16px;
-  font-size: 2rem;
+  font-size: clamp(1.05rem, 4.6vw, 2rem);
   font-weight: 800;
+  line-height: 1.35;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 #result-modal button,
