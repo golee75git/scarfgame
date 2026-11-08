@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>스카프 고르기</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-hide-caption="color">
+  <main class="table">
+    <header class="intro">
+      <div class="status">
+        <p id="hint" class="hint" aria-live="polite"></p>
+      </div>
+    </header>
+
+    <div id="grid" class="grid" role="group" aria-label="스카프 선택"></div>
+  </main>
+
+  <section class="tray" aria-label="선택한 스카프">
+    <div id="result" class="result" aria-live="polite">
+      <p id="result-title" class="result-title"></p>
+      <p id="vendor-line" class="vendor-line"></p>
+      <p id="dup-list" class="dup-list"></p>
+    </div>
+    <p id="notice" class="notice" aria-live="polite"></p>
+    <p class="rule">무늬가 서로 다른 스카프 6장을 고르세요. 색이 달라도 같은 디자인이면 실패입니다.</p>
+    <div class="tray-row">
+      <div class="tray-head">
+        <h2 class="tray-title">고른 스카프</h2>
+        <p id="count" class="count" aria-live="polite">0 / 6장</p>
+      </div>
+      <div id="tray" class="tray-list"></div>
+      <div class="actions">
+        <button type="button" id="rummage">뒤적거리기</button>
+        <button type="button" id="pile">버무리기</button>
+        <button type="button" id="retry">다시 하기</button>
+        <button type="button" id="leave">나가기</button>
+      </div>
+    </div>
+  </section>
+
+  <dialog id="result-modal" aria-labelledby="result-modal-message">
+    <p id="result-modal-message"></p>
+    <button type="button" id="result-modal-close">확인</button>
+  </dialog>
+
+  <dialog id="note-modal" aria-labelledby="note-modal-message">
+    <p id="note-modal-message"></p>
+    <div class="note-actions">
+      <button type="button" id="note-stay">확인</button>
+      <button type="button" id="note-leave" hidden>다음에 올게요</button>
+    </div>
+  </dialog>
+
+  <script src="js/data.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
