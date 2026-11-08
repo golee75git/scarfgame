@@ -410,6 +410,11 @@ h1 {
   color: rgba(244, 239, 230, 0.72);
 }
 
+.page-mark a {
+  color: inherit;
+  margin-right: 0.45em;
+}
+
 .page-mark span + span:not(:empty) {
   margin-left: 0.45em;
 }
@@ -590,4 +595,45 @@ h1 {
 
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto; }
+}
+
+body.sheet {
+  height: auto;
+  min-height: 100dvh;
+  display: block;
+  overflow: auto;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.sheet-main {
+  width: min(720px, 100%);
+  margin: 0 auto;
+  padding: 28px 22px 48px;
+}
+
+.sheet-main h1 {
+  margin: 0 0 0.8em;
+  font-size: 1.45rem;
+  letter-spacing: -0.03em;
+}
+
+.sheet-main h2 {
+  margin: 1.4em 0 0.45em;
+  font-size: 1.05rem;
+}
+
+.sheet-main p,
+.sheet-main li {
+  margin: 0.45em 0;
+  font-size: 0.95rem;
+}
+
+.sheet-main a {
+  color: var(--indigo);
+}
+
+.sheet-back {
+  display: inline-block;
+  margin: 0 0 1.2em;
 }

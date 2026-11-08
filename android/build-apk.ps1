@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 $sdk = "$env:LOCALAPPDATA\Android\Sdk"
 $buildTools = Join-Path $sdk "build-tools\35.0.0"
@@ -15,6 +15,7 @@ $apk = Join-Path $root "scarf-$stamp.apk"
 if (Test-Path $work) { Remove-Item $work -Recurse -Force }
 New-Item -ItemType Directory -Path $assets, $classes | Out-Null
 Copy-Item (Join-Path $root "index.html") $assets
+Copy-Item (Join-Path $root "안내.html") $assets
 Copy-Item (Join-Path $root "css") (Join-Path $assets "css") -Recurse
 Copy-Item (Join-Path $root "js") (Join-Path $assets "js") -Recurse
 if (Test-Path (Join-Path $root "images")) {
