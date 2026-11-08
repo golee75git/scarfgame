@@ -430,6 +430,13 @@ h1 {
 .tray-empty {
   margin: 0;
   align-self: center;
+  width: 100%;
+  text-align: center;
+}
+
+.tray-empty .idle-line {
+  display: block;
+  margin-top: 4px;
 }
 
 .tray .scarf-card {

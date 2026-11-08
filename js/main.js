@@ -251,12 +251,75 @@
     });
   }
 
+  var idleLine = "";
+  var idleToken = 0;
+  var idleLines = [
+    "아직 빈손이래요! 구경만 하다 해 지겠네!",
+    "눈으로 열 장 골랐으면 손으로 한 장 집어요!",
+    "스카프 고르랬더니 명상하고 계시네!",
+    "손님! 그렇게 쳐다보면 스카프가 부끄러워요!",
+    "여기 눈싸움하는 데 아니에요! 하나 집어요!",
+    "마음에 드는 거 콕! 매대에 구멍 나겠어요!",
+    "첫 장이 어렵지, 여섯 장은 순식간이래요!",
+    "빈손으로 오셨으면 나갈 땐 좀 달라야지!",
+    "스카프들이 서로 골라달라고 난리 났어요!",
+    "아니, 손님! 취향을 집에 두고 오셨어요?",
+    "고민은 길고, 내 팔자는 더 길고!",
+    "한 장 고른다고 동네방네 소문 안 내요!",
+    "손은 주머니에 넣고 눈만 장사하시네!",
+    "스카프가 손님 얼굴 외우겠어요! 얼른 골라요!",
+    "그렇게 신중하면 스카프도 면접 봐야겠네!",
+    "운명의 스카프요? 일단 집어야 인연이 생기지!",
+    "예쁜 건 알아가지고! 근데 왜 안 집어요?",
+    "손님 손가락, 오늘 휴무예요?",
+    "마음은 여섯 장인데 손은 아직 출발도 안 했네!",
+    "뒤적뒤적해봐요! 보물은 밑에 숨어 있다니까!",
+    "버무려봐요! 취향도 좀 뒤집어보게!",
+    "아무것도 안 고르면 내가 아무거나 골라줘요?",
+    "이렇게 오래 봤으면 스카프랑 정들었겠어요!",
+    "스카프는 내가 펼쳤는데 고민은 손님이 펼치네!",
+    "고르는 데 자격증 필요 없어요! 손만 있으면 돼!",
+    "한 장만 집어봐요! 나머지는 손이 알아서 해!",
+    "아직도 빈손이야? 매대랑 밀당 그만해요!",
+    "여기 감정평가 나왔어요? 하나 골라요!",
+    "구경은 실컷 했고! 이제 손가락 출근합시다!",
+    "내가 졌다, 졌어! 손님 인내심이 더 질겨!",
+    "고르다 밤새겠네! 천막 걷기 전에 한 장!",
+    "아직 고른 게 없다고? 눈은 벌써 단골인데!",
+    "스카프는 준비됐고! 손님 결심만 오면 돼!",
+    "이 집 스카프는 안 물어요! 편하게 집어요!",
+    "빈손도 전략이야? 아주 큰 그림을 그리시네!",
+    "그렇게 뜸 들이면 스카프가 밥 되겠어요!",
+    "손님! 머릿속 장바구니는 여기 안 보여요!",
+    "여섯 장 고르는 판에 첫 장부터 대하드라마야!",
+    "스카프 보러 왔어요, 내 속 뒤집으러 왔어요?",
+    "내 장사 인생에 이렇게 신중한 손님은 처음이야!"
+  ];
+
+  function armIdleWait() {
+    idleToken += 1;
+    idleLine = "";
+    var token = idleToken;
+    window.setTimeout(function () {
+      if (token !== idleToken) return;
+      if (state.selectedIds.length) return;
+      idleLine = idleLines[Math.floor(Math.random() * idleLines.length)];
+      render();
+    }, 3000);
+  }
+
   function paintTray() {
     tray.replaceChildren();
     if (!state.selectedIds.length) {
       var empty = document.createElement("p");
       empty.className = "tray-empty";
       empty.textContent = "아직 고른 스카프가 없습니다.";
+      if (idleLine) {
+        var extra = document.createElement("span");
+        extra.className = "idle-line";
+        extra.textContent = idleLine;
+        empty.appendChild(extra);
+      }
       tray.appendChild(empty);
       return;
     }
@@ -515,6 +578,7 @@
     notice = "";
     lastVerdict = "";
     closeResultModal();
+    armIdleWait();
     render();
   }
 
@@ -545,6 +609,7 @@
       .catch(function () {});
   }
 
+  armIdleWait();
   render();
   showVisits();
 }());
