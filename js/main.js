@@ -339,11 +339,55 @@
     if (playing && typeof playing.catch === "function") playing.catch(function () {});
   }
 
+  var noteToken = 0;
+  var lastStir = "";
+  var rummageLines = [
+    "어허~ 위에 것만 보면 섭섭하지!",
+    "뒤져봐요~ 보물찾기가 따로 있나!",
+    "방금 거기! 뭐 좋은 거 보였는데?",
+    "손님, 스카프랑 숨바꼭질해요?",
+    "그렇게 뒤지면 내가 숨긴 것도 나오겠네!",
+    "천천히 봐요~ 다 임자가 따로 있어!",
+    "아이고~ 다 섞였네! 더 예뻐졌네!",
+    "뒤적이는 솜씨가 단골이시네!",
+    "내가 뭘 어디 뒀더라? 같이 찾아봐요!"
+  ];
+  var pileLines = [
+    "골고루 버무려야 예쁜 게 올라와요!",
+    "자~ 한 번 싹 버무려봅시다!",
+    "섞어 섞어~ 새 판 깔아드려요!",
+    "위에 건 아래로! 아래 건 위로!",
+    "살살 버무려요~ 김치 아니에요!",
+    "아이고~ 스카프 비빔밥 됐네!",
+    "꽁꽁 숨은 예쁜 놈, 나와라!",
+    "이렇게 섞으면 나도 뭐가 어딨는지 몰라!",
+    "자, 골고루 섞었으니 다시 골라봐요!"
+  ];
+
+  function stirLine(kind, lines, againLine) {
+    if (lastStir === kind) return againLine;
+    lastStir = kind;
+    return lines[Math.floor(Math.random() * lines.length)];
+  }
+
   function showNote(message, leaving) {
+    noteToken += 1;
+    var token = noteToken;
     noteModalMessage.textContent = message;
-    noteStay.textContent = leaving ? "더 골라볼게요" : "확인";
+    noteStay.hidden = !leaving;
     noteLeave.hidden = !leaving;
-    if (!noteModal.open) noteModal.showModal();
+    if (leaving) noteStay.textContent = "더 골라볼게요";
+    var modalNow = noteModal.open && noteModal.matches(":modal");
+    if (noteModal.open && modalNow !== leaving) noteModal.close();
+    if (!noteModal.open) {
+      if (leaving) noteModal.showModal();
+      else noteModal.show();
+    }
+    if (leaving) return;
+    window.setTimeout(function () {
+      if (token !== noteToken || !noteModal.open) return;
+      noteModal.close();
+    }, 2000);
   }
 
   function closeShelf() {
@@ -358,7 +402,7 @@
     laidColumns = shelfColumns();
     render();
     slideShelf(places, 1000);
-    showNote("스카프가 주인을 알아봤네!", false);
+    showNote(stirLine("rummage", rummageLines, "손님~ 스카프보다 손이 더 바빠!"), false);
   });
 
   pileBtn.addEventListener("click", function () {
@@ -384,7 +428,7 @@
     });
     render();
     slideShelf(places, 1000);
-    showNote("뒤적뒤적해야 보물이 나와요!", false);
+    showNote(stirLine("pile", pileLines, "손님~ 그만 버무려요! 스카프에서 맛 나겠어!"), false);
   });
 
   function settlePick() {
