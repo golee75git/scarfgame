@@ -636,23 +636,6 @@ h1 {
   gap: 8px;
 }
 
-#note-modal.is-cloth {
-  container-type: inline-size;
-  width: min(92vw, calc((100dvh - 32px) * 2172 / 329));
-  max-width: calc(100vw - 24px);
-  aspect-ratio: 2172 / 329;
-  height: auto;
-  padding: 6% 14%;
-  overflow: hidden;
-  background: transparent url("../images/back.png") center / 100% 100% no-repeat;
-  color: var(--ink);
-}
-
-#note-modal.is-cloth p {
-  margin: 0;
-  font-size: clamp(1rem, 2.8cqw, 2.4rem);
-}
-
 #rule-modal p {
   font-size: clamp(0.85rem, 2.6vw, 1.25rem);
 }
@@ -662,10 +645,6 @@ h1 {
   height: clamp(32px, 4.5vh, 40px);
   padding: 0 12px;
   font-size: clamp(0.8rem, 2.2vw, 1rem);
-}
-
-#note-modal.is-cloth .note-actions {
-  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
