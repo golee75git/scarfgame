@@ -298,7 +298,8 @@
     "손님! 머릿속 장바구니는 여기 안 보여요!",
     "여섯 장 고르는 판에 첫 장부터 대하드라마야!",
     "스카프 보러 왔어요, 내 속 뒤집으러 왔어요?",
-    "내 장사 인생에 이렇게 신중한 손님은 처음이야!"
+    "내 장사 인생에 이렇게 신중한 손님은 처음이야!",
+    "제 얼굴 그만 보고 스카프 고르세요"
   ];
 
   function chooseIdleLine() {
@@ -379,7 +380,11 @@
     "이야~ 이 많은 데서 안 겹치게 골랐어!",
     "손님, 내일부터 여기서 같이 일합시다!",
     "이 솜씨면 눈 감고도 고르시겠네!",
-    "여섯 장 합격! 스카프 고르기 달인이네!"
+    "여섯 장 합격! 스카프 고르기 달인이네!",
+    "이걸로 땀이나 닦아. 하고 다니지 말고.",
+    "너네 지금 과소비야.",
+    "지금 고른 건 비닐에 있을 때 최고로 예뻐",
+    "집에 가지고 들어가지말고 현관에 두고 나눠줘"
   ];
   var missLines = [
     "정신차리세요!",
@@ -390,7 +395,11 @@
     "그 스카프가 손님 마음에 쏙 들었나 봐!",
     "이건 이미 골랐으니 다른 보물 찾아봐요!",
     "색깔에 속았지? 아까 그 녀석이야!",
-    "내가 섞어놔도 그걸 또 찾아내네!"
+    "내가 섞어놔도 그걸 또 찾아내네!",
+    "나머지 1000가지는 다 거지 같은 거여.",
+    "저 옆에 백화점으로 가시라.",
+    "제발 침착하게 고르세요.",
+    "돈 천원짜리를 설마 천만원짜리로 고르면 힘들어요"
   ];
   var missAgainLines = [
     "또 그거야? 이제 이름도 지어주겠네!",
@@ -463,6 +472,7 @@
     if (state.selectedIds.length > before) playSelect();
     if (state.selectedIds.length && before === 0) stopIdleChange();
     if (!state.selectedIds.length && before > 0 && idleLine) resumeIdleChange();
+    refreshPartialWait();
     if (state.phase === "playing" && before < ScarfData.selectLimit && state.selectedIds.length === ScarfData.selectLimit) {
       settlePick();
       return;
@@ -514,6 +524,56 @@
     if (lastStir === kind) return againLine;
     lastStir = kind;
     return lines[Math.floor(Math.random() * lines.length)];
+  }
+
+  var partialToken = 0;
+  var partialNoted = false;
+  var partialLine = "왜, 줄 친구가 없어?";
+
+  function stopPartialWait() {
+    partialToken += 1;
+  }
+
+  function dismissPartialLine() {
+    if (!noteModal.open || noteModal.matches(":modal")) return;
+    if (noteModalMessage.textContent !== partialLine) return;
+    noteModal.close();
+  }
+
+  function armPartialWait() {
+    partialToken += 1;
+    if (state.phase !== "playing") return;
+    var count = state.selectedIds.length;
+    if (count < 1 || count >= ScarfData.selectLimit) return;
+    var token = partialToken;
+    window.setTimeout(function () {
+      if (token !== partialToken || partialNoted) return;
+      if (state.phase !== "playing") return;
+      var now = state.selectedIds.length;
+      if (now < 1 || now >= ScarfData.selectLimit) return;
+      if (noteModal.open) {
+        var onClose = function () {
+          noteModal.removeEventListener("close", onClose);
+          if (token !== partialToken || partialNoted) return;
+          if (state.phase !== "playing") return;
+          var left = state.selectedIds.length;
+          if (left < 1 || left >= ScarfData.selectLimit) return;
+          partialNoted = true;
+          showNote(partialLine, false);
+        };
+        noteModal.addEventListener("close", onClose);
+        return;
+      }
+      partialNoted = true;
+      showNote(partialLine, false);
+    }, 3000);
+  }
+
+  function refreshPartialWait() {
+    partialNoted = false;
+    var count = state.selectedIds.length;
+    if (state.phase !== "playing" || count < 1 || count >= ScarfData.selectLimit) dismissPartialLine();
+    armPartialWait();
   }
 
   function showNote(message, leaving, cloth) {
@@ -579,6 +639,8 @@
   });
 
   function settlePick() {
+    stopPartialWait();
+    dismissPartialLine();
     var judgment = ScarfGame.judgeSelection(state.cards, state.selectedIds);
     if (!judgment.ready || state.phase !== "playing") {
       render();
@@ -654,6 +716,8 @@
     pileHeight = 0;
     notice = "";
     lastVerdict = "";
+    partialNoted = false;
+    stopPartialWait();
     closeResultModal();
     armIdleWait();
     render();
