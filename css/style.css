@@ -66,13 +66,6 @@ h1 {
   font-variant-numeric: tabular-nums;
 }
 
-.rule {
-  margin: 0 0 8px;
-  font-size: 1.05rem;
-  text-align: left;
-  word-break: keep-all;
-}
-
 .status { min-height: 0; }
 
 .hint:empty { display: none; }
@@ -590,6 +583,7 @@ h1 {
 }
 
 #result-modal,
+#rule-modal,
 #note-modal {
   position: fixed;
   inset: 0;
@@ -608,11 +602,13 @@ h1 {
 }
 
 #result-modal::backdrop,
+#rule-modal::backdrop,
 #note-modal::backdrop {
   background: rgba(26, 39, 68, 0.55);
 }
 
 #result-modal p,
+#rule-modal p,
 #note-modal p {
   margin: 0 0 16px;
   font-size: clamp(1.05rem, 4.6vw, 2rem);
@@ -623,6 +619,7 @@ h1 {
 }
 
 #result-modal button,
+#rule-modal button,
 #note-modal button {
   min-height: 44px;
   padding: 0 18px;

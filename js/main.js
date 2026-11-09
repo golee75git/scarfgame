@@ -40,6 +40,8 @@
   var resultModal = document.getElementById("result-modal");
   var resultModalMessage = document.getElementById("result-modal-message");
   var resultModalClose = document.getElementById("result-modal-close");
+  var ruleModal = document.getElementById("rule-modal");
+  var ruleModalClose = document.getElementById("rule-modal-close");
   var noteModal = document.getElementById("note-modal");
   var noteModalMessage = document.getElementById("note-modal-message");
   var noteStay = document.getElementById("note-stay");
@@ -654,7 +656,16 @@
       .catch(function () {});
   }
 
-  armIdleWait();
+  ruleModal.addEventListener("cancel", function (event) {
+    event.preventDefault();
+  });
+
+  ruleModalClose.addEventListener("click", function () {
+    ruleModal.close();
+    armIdleWait();
+  });
+
   render();
   showVisits();
+  ruleModal.showModal();
 }());
