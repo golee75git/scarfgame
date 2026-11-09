@@ -605,6 +605,9 @@
   rummageBtn.addEventListener("click", function () {
     playRustle();
     var places = shelfPlaces();
+    piled = false;
+    pileSpots = {};
+    pileHeight = 0;
     state = ScarfGame.shuffleCards(state, shelfColumns());
     laidColumns = shelfColumns();
     render();
