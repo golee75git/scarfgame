@@ -2,7 +2,7 @@ var ScarfGame = (function () {
   "use strict";
 
   var SELECT_LIMIT = 6;
-  var ROUND_SIZE = 18;
+  var ROUND_SIZE = 16;
   var BLOCKED_NOTICE = "이미 6장을 골랐습니다. 하나를 해제하거나 결과를 확인하세요.";
 
   function shuffle(list, random) {
