@@ -92,8 +92,30 @@ h1 {
 .notice:empty { display: none; }
 
 .intro {
+  position: relative;
   flex: 0 0 auto;
   margin: 0 -22px 0;
+}
+
+#offer {
+  position: absolute;
+  z-index: 1;
+  right: 3.2%;
+  top: 34%;
+  transform: translateY(-50%);
+  min-height: 32px;
+  padding: 0 10px;
+  border: 0;
+  background: #f4efe6;
+  color: var(--ink);
+  font-size: 0.82rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+#offer:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
 }
 
 .intro::before {
@@ -547,6 +569,11 @@ h1 {
     padding: 0 6px;
     font-size: 0.75rem;
     white-space: nowrap;
+  }
+  #offer {
+    min-height: 28px;
+    padding: 0 8px;
+    font-size: 0.75rem;
   }
   .tray .scarf-card { width: 104px; }
   .tray .scarf-face { min-height: 52px; }

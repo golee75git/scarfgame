@@ -1,6 +1,8 @@
 package local.scarf.challenge;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.graphics.Insets;
 import android.os.Build;
 import android.os.Bundle;
@@ -101,6 +103,22 @@ public class MainActivity extends Activity {
                 @Override
                 public void run() {
                     finish();
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void offer() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Intent send = new Intent(Intent.ACTION_SEND);
+                    send.setType("text/plain");
+                    send.putExtra(Intent.EXTRA_TEXT, "스카프래요! 무늬가 다른 스카프 여섯 장, 골라 보세요.\nhttps://scarfgame.vercel.app/");
+                    try {
+                        startActivity(Intent.createChooser(send, "게임 주소"));
+                    } catch (ActivityNotFoundException ignored) {
+                    }
                 }
             });
         }

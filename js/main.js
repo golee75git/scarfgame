@@ -32,6 +32,8 @@
   var pileBtn = document.getElementById("pile");
   var retryBtn = document.getElementById("retry");
   var leaveBtn = document.getElementById("leave");
+  var offerBtn = document.getElementById("offer");
+  var gameLink = "https://scarfgame.vercel.app/";
   var visitCount = document.getElementById("visit-count");
   var rustle = new Audio("sound/1.wav");
   var selectSound = new Audio("sound/select.wav");
@@ -559,6 +561,40 @@
     render();
     showResultModal(judgment.ok);
   }
+
+  function copyGameLink() {
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+      navigator.clipboard.writeText(gameLink).then(function () {
+        showNote("주소를 복사했습니다.", false);
+      }).catch(function () {
+        showNote(gameLink, false);
+      });
+      return;
+    }
+    showNote(gameLink, false);
+  }
+
+  function offerGameLink() {
+    var shelf = window.ScarfShelf;
+    if (shelf && typeof shelf.offer === "function") {
+      shelf.offer();
+      return;
+    }
+    if (typeof navigator.share === "function") {
+      navigator.share({
+        title: "스카프래요! 게임",
+        text: "스카프래요! 무늬가 다른 스카프 여섯 장, 골라 보세요.",
+        url: gameLink
+      }).catch(function (err) {
+        if (err && err.name === "AbortError") return;
+        copyGameLink();
+      });
+      return;
+    }
+    copyGameLink();
+  }
+
+  offerBtn.addEventListener("click", offerGameLink);
 
   leaveBtn.addEventListener("click", function () {
     showNote("벌써 가시게? 이제 좋은 거 나오는데!", true);
