@@ -301,6 +301,24 @@
     "내 장사 인생에 이렇게 신중한 손님은 처음이야!"
   ];
 
+  function chooseIdleLine() {
+    var index = Math.floor(Math.random() * idleLines.length);
+    if (idleLines[index] === idleLine) {
+      index = (index + 1 + Math.floor(Math.random() * (idleLines.length - 1))) % idleLines.length;
+    }
+    idleLine = idleLines[index];
+  }
+
+  function queueIdleChange(token) {
+    window.setTimeout(function () {
+      if (token !== idleToken) return;
+      if (state.selectedIds.length) return;
+      chooseIdleLine();
+      render();
+      queueIdleChange(token);
+    }, 5000);
+  }
+
   function armIdleWait() {
     idleToken += 1;
     idleLine = "";
@@ -308,9 +326,19 @@
     window.setTimeout(function () {
       if (token !== idleToken) return;
       if (state.selectedIds.length) return;
-      idleLine = idleLines[Math.floor(Math.random() * idleLines.length)];
+      chooseIdleLine();
       render();
+      queueIdleChange(token);
     }, 3000);
+  }
+
+  function stopIdleChange() {
+    idleToken += 1;
+  }
+
+  function resumeIdleChange() {
+    idleToken += 1;
+    queueIdleChange(idleToken);
   }
 
   function paintTray() {
@@ -433,6 +461,8 @@
     state = result.state;
     notice = result.notice;
     if (state.selectedIds.length > before) playSelect();
+    if (state.selectedIds.length && before === 0) stopIdleChange();
+    if (!state.selectedIds.length && before > 0 && idleLine) resumeIdleChange();
     if (state.phase === "playing" && before < ScarfData.selectLimit && state.selectedIds.length === ScarfData.selectLimit) {
       settlePick();
       return;
