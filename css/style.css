@@ -639,6 +639,26 @@ h1 {
   gap: 8px;
 }
 
+#note-modal.is-cloth {
+  width: min(92vw, calc((100dvh - 32px) * 2172 / 329));
+  max-width: calc(100vw - 24px);
+  aspect-ratio: 2172 / 329;
+  height: auto;
+  padding: 6% 14%;
+  overflow: hidden;
+  background: transparent url("../images/back.png") center / 100% 100% no-repeat;
+  color: var(--ink);
+}
+
+#note-modal.is-cloth p {
+  margin: 0;
+  font-size: clamp(0.82rem, 2.4vw, 1.35rem);
+}
+
+#note-modal.is-cloth .note-actions {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto; }
 }

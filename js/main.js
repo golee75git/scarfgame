@@ -484,9 +484,10 @@
     return lines[Math.floor(Math.random() * lines.length)];
   }
 
-  function showNote(message, leaving) {
+  function showNote(message, leaving, cloth) {
     noteToken += 1;
     var token = noteToken;
+    noteModal.classList.toggle("is-cloth", cloth === true);
     noteModalMessage.textContent = message;
     noteStay.hidden = !leaving;
     noteLeave.hidden = !leaving;
@@ -516,7 +517,7 @@
     laidColumns = shelfColumns();
     render();
     slideShelf(places, 1000);
-    showNote(stirLine("rummage", rummageLines, "손님~ 스카프보다 손이 더 바빠!"), false);
+    showNote(stirLine("rummage", rummageLines, "손님~ 스카프보다 손이 더 바빠!"), false, true);
   });
 
   pileBtn.addEventListener("click", function () {
@@ -542,7 +543,7 @@
     });
     render();
     slideShelf(places, 1000);
-    showNote(stirLine("pile", pileLines, "손님~ 그만 버무려요! 스카프에서 맛 나겠어!"), false);
+    showNote(stirLine("pile", pileLines, "손님~ 그만 버무려요! 스카프에서 맛 나겠어!"), false, true);
   });
 
   function settlePick() {
