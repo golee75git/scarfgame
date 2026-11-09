@@ -695,6 +695,34 @@
     armIdleWait();
   });
 
+  function modalCoversShelf() {
+    return (ruleModal.open && ruleModal.matches(":modal"))
+      || (resultModal.open && resultModal.matches(":modal"))
+      || (noteModal.open && noteModal.matches(":modal"));
+  }
+
+  function wheelDistance(event) {
+    if (event.deltaMode === 1) return event.deltaY * 16;
+    if (event.deltaMode === 2) return event.deltaY * grid.clientHeight;
+    return event.deltaY;
+  }
+
+  window.addEventListener("wheel", function (event) {
+    if (event.ctrlKey) return;
+    if (modalCoversShelf()) return;
+    if (grid.contains(event.target)) return;
+    if (grid.classList.contains("is-sliding")) return;
+    if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+    var room = grid.scrollHeight - grid.clientHeight;
+    if (room <= 0) return;
+    var next = grid.scrollTop + wheelDistance(event);
+    if (next < 0) next = 0;
+    if (next > room) next = room;
+    if (next === grid.scrollTop) return;
+    grid.scrollTop = next;
+    event.preventDefault();
+  }, { passive: false });
+
   render();
   showVisits();
   ruleModal.showModal();
