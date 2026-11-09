@@ -411,13 +411,19 @@
     return lines[Math.floor(Math.random() * lines.length)];
   }
 
+  var resultStep = "";
+
   function showResultModal(ok) {
-    var message = ok
-      ? pickLine(passLines)
-      : pickLine(lastVerdict === "fail" ? missAgainLines : missLines);
+    if (ok) {
+      resultStep = "calc";
+      resultModalMessage.textContent = "계산";
+      resultModalClose.textContent = "확인";
+    } else {
+      resultStep = "";
+      resultModalMessage.textContent = pickLine(lastVerdict === "fail" ? missAgainLines : missLines);
+      resultModalClose.textContent = "다시고르기";
+    }
     lastVerdict = ok ? "pass" : "fail";
-    resultModalMessage.textContent = message;
-    resultModalClose.textContent = ok ? "다음단계로" : "다시고르기";
     closeResultModal();
     resultModal.showModal();
   }
@@ -473,6 +479,9 @@
     if (state.selectedIds.length && before === 0) stopIdleChange();
     if (!state.selectedIds.length && before > 0 && idleLine) resumeIdleChange();
     refreshPartialWait();
+    if (!state.selectedIds.length && before > 0 && state.phase === "playing") {
+      showNote("사지마! 안사도돼!", false);
+    }
     if (state.phase === "playing" && before < ScarfData.selectLimit && state.selectedIds.length === ScarfData.selectLimit) {
       settlePick();
       return;
@@ -718,6 +727,7 @@
     pileHeight = 0;
     notice = "";
     lastVerdict = "";
+    resultStep = "";
     partialNoted = false;
     stopPartialWait();
     closeResultModal();
@@ -730,6 +740,12 @@
   });
 
   resultModalClose.addEventListener("click", function () {
+    if (state.phase === "success" && resultStep === "calc") {
+      resultStep = "line";
+      resultModalMessage.textContent = pickLine(passLines);
+      resultModalClose.textContent = "더고르기";
+      return;
+    }
     if (state.phase === "success") {
       openFreshShelf(true);
       return;
@@ -788,6 +804,9 @@
     grid.scrollTop = next;
     event.preventDefault();
   }, { passive: false });
+
+  var installLink = document.getElementById("install");
+  if (installLink && window.ScarfShelf) installLink.hidden = true;
 
   render();
   showVisits();

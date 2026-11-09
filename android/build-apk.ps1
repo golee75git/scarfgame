@@ -9,7 +9,7 @@ $classes = Join-Path $work "classes"
 $keystore = Join-Path $work "scarf.keystore"
 $unsigned = Join-Path $work "unsigned.apk"
 $aligned = Join-Path $work "aligned.apk"
-$stamp = Get-Date -Format "yyyyMMdd-HHmmss"
+$stamp = if ($env:SCARF_STAMP) { $env:SCARF_STAMP } else { Get-Date -Format "yyyyMMdd-HHmmss" }
 $apk = Join-Path $root "scarf-$stamp.apk"
 
 if (Test-Path $work) { Remove-Item $work -Recurse -Force }
