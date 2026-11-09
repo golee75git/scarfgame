@@ -2,7 +2,7 @@ var ScarfGame = (function () {
   "use strict";
 
   var SELECT_LIMIT = 6;
-  var ROUND_SIZE = 16;
+  var ROUND_SIZE = 18;
   var BLOCKED_NOTICE = "이미 6장을 골랐습니다. 하나를 해제하거나 결과를 확인하세요.";
 
   function shuffle(list, random) {
@@ -249,7 +249,7 @@ var ScarfGame = (function () {
       var basic = catalog.filter(function (design) { return !extra[design.designId]; });
       if (basic.length) source = basic;
     } else {
-      var similar = { wave: 1, ring: 1, arc: 1, scale: 1, dot: 1, floral: 1, stripe: 1, leaf: 1, diamond: 1, hstripe: 1, speck: 1, ripple: 1, slash: 1, pic09: 1, pic10: 1, pic11: 1, pic13: 1, pic14: 1, pic15: 1, pic16: 1 };
+      var similar = { wave: 1, ring: 1, arc: 1, scale: 1, dot: 1, floral: 1, stripe: 1, leaf: 1, diamond: 1, hstripe: 1, speck: 1, ripple: 1, slash: 1, pic09: 1, pic10: 1, pic11: 1, pic13: 1, pic14: 1, pic15: 1, pic16: 1, ginkgo: 1, deco: 1, contour: 1, camellia: 1, mosaic: 1, ocean: 1, checker: 1, night: 1 };
       var filtered = catalog.filter(function (design) { return similar[design.designId]; });
       if (filtered.length) source = filtered;
     }

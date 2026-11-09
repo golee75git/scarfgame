@@ -2,7 +2,7 @@
   "use strict";
 
   var roundSize = ScarfData.roundSize;
-  var roundMax = 16;
+  var roundMax = 24;
   var stage = 1;
 
   function shelfColumns() {
