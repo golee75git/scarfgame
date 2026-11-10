@@ -412,20 +412,37 @@
   }
 
   var resultStep = "";
+  var resultToken = 0;
+
+  function showPassLine() {
+    resultStep = "line";
+    resultModalMessage.textContent = pickLine(passLines);
+    resultModalClose.hidden = false;
+    resultModalClose.textContent = "더고르기";
+  }
 
   function showResultModal(ok) {
+    resultToken += 1;
+    var token = resultToken;
     if (ok) {
       resultStep = "calc";
-      resultModalMessage.textContent = "계산";
-      resultModalClose.textContent = "확인";
+      resultModalMessage.textContent = "계산!";
+      resultModalClose.hidden = true;
     } else {
       resultStep = "";
       resultModalMessage.textContent = pickLine(lastVerdict === "fail" ? missAgainLines : missLines);
+      resultModalClose.hidden = false;
       resultModalClose.textContent = "다시고르기";
     }
     lastVerdict = ok ? "pass" : "fail";
     closeResultModal();
     resultModal.showModal();
+    if (!ok) return;
+    window.setTimeout(function () {
+      if (token !== resultToken || resultStep !== "calc" || state.phase !== "success") return;
+      if (!resultModal.open) return;
+      showPassLine();
+    }, 2000);
   }
 
   function fitTray() {
@@ -728,6 +745,7 @@
     notice = "";
     lastVerdict = "";
     resultStep = "";
+    resultToken += 1;
     partialNoted = false;
     stopPartialWait();
     closeResultModal();
@@ -739,13 +757,11 @@
     openFreshShelf(state.phase === "success");
   });
 
+  resultModal.addEventListener("cancel", function (event) {
+    if (resultStep === "calc") event.preventDefault();
+  });
+
   resultModalClose.addEventListener("click", function () {
-    if (state.phase === "success" && resultStep === "calc") {
-      resultStep = "line";
-      resultModalMessage.textContent = pickLine(passLines);
-      resultModalClose.textContent = "더고르기";
-      return;
-    }
     if (state.phase === "success") {
       openFreshShelf(true);
       return;
