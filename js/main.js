@@ -797,8 +797,14 @@
     return hex.length === 32 ? hex : "";
   }
 
+  function aislePart(person, className) {
+    var part = document.createElement("span");
+    part.className = className;
+    person.appendChild(part);
+  }
+
   function paintAisle(row, standing) {
-    var shown, extra, i, person, more;
+    var shown, extra, i, person, more, straight;
     while (row.firstChild) row.removeChild(row.firstChild);
     if (standing < 1) {
       row.hidden = true;
@@ -807,9 +813,21 @@
     }
     shown = standing > 8 ? 8 : standing;
     for (i = 0; i < shown; i++) {
+      straight = i % 2 === 0;
       person = document.createElement("span");
-      person.className = "aisle-person";
+      person.className = straight ? "aisle-person aisle-person-straight" : "aisle-person aisle-person-flare";
       person.setAttribute("aria-hidden", "true");
+      aislePart(person, "aisle-arm aisle-arm-left");
+      aislePart(person, "aisle-arm aisle-arm-right");
+      aislePart(person, "aisle-shoulder");
+      if (straight) {
+        aislePart(person, "aisle-leg aisle-leg-left");
+        aislePart(person, "aisle-leg aisle-leg-right");
+      } else {
+        aislePart(person, "aisle-hem");
+      }
+      aislePart(person, "aisle-body");
+      aislePart(person, "aisle-head");
       row.appendChild(person);
     }
     extra = standing - shown;
