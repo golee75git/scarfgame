@@ -802,12 +802,33 @@
     return "images/avata" + String(face) + ".png";
   }
 
+  function paintKeeper(row, guests) {
+    var person = document.createElement("span");
+    var photo = document.createElement("img");
+    var bubble = document.createElement("span");
+    person.className = "aisle-person aisle-keeper";
+    photo.className = "aisle-photo";
+    photo.src = "images/avata-saller.png";
+    photo.alt = "";
+    bubble.className = "aisle-bubble";
+    bubble.appendChild(document.createTextNode("사장님"));
+    if (guests > 0) {
+      bubble.appendChild(document.createElement("br"));
+      bubble.appendChild(document.createTextNode("어서오세요~"));
+    }
+    person.appendChild(photo);
+    person.appendChild(bubble);
+    row.appendChild(person);
+  }
+
   function paintAisle(row, faces, mineAt) {
-    var order, extra, i, face, person, photo, bubble, more, file;
+    var order, extra, i, face, person, photo, bubble, more, file, guests;
     while (row.firstChild) row.removeChild(row.firstChild);
-    if (!faces || faces.length < 1) {
-      row.hidden = true;
-      row.removeAttribute("aria-label");
+    guests = faces && faces.length ? faces.length : 0;
+    paintKeeper(row, guests);
+    if (guests < 1) {
+      row.hidden = false;
+      row.setAttribute("aria-label", "매대 아래");
       return;
     }
     order = [];
@@ -1004,7 +1025,9 @@
   var installLink = document.getElementById("install");
   if (installLink && window.ScarfShelf) installLink.hidden = true;
 
+  var aisleRow = document.getElementById("aisle");
   render();
   showVisits();
+  if (aisleRow) paintAisle(aisleRow, [], -1);
   openFaceGate();
 }());
