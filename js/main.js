@@ -797,40 +797,47 @@
     return hex.length === 32 ? hex : "";
   }
 
-  function aislePart(person, className) {
-    var part = document.createElement("span");
-    part.className = className;
-    person.appendChild(part);
+  function faceFile(face) {
+    if (typeof face !== "number" || !Number.isInteger(face) || face < 1 || face > 6) return "";
+    return "images/avata" + String(face) + ".png";
   }
 
-  function paintAisle(row, standing) {
-    var shown, extra, i, person, more, straight;
+  function paintAisle(row, faces, mineAt) {
+    var order, extra, i, face, person, photo, bubble, more, file;
     while (row.firstChild) row.removeChild(row.firstChild);
-    if (standing < 1) {
+    if (!faces || faces.length < 1) {
       row.hidden = true;
       row.removeAttribute("aria-label");
       return;
     }
-    shown = standing > 8 ? 8 : standing;
-    for (i = 0; i < shown; i++) {
-      straight = i % 2 === 0;
+    order = [];
+    if (mineAt >= 0 && mineAt < faces.length) order.push(mineAt);
+    for (i = 0; i < faces.length && order.length < 8; i++) {
+      if (i !== mineAt) order.push(i);
+    }
+    for (i = 0; i < order.length; i++) {
+      face = faces[order[i]];
+      file = faceFile(face);
+      if (!file) continue;
       person = document.createElement("span");
-      person.className = straight ? "aisle-person aisle-person-straight" : "aisle-person aisle-person-flare";
-      person.setAttribute("aria-hidden", "true");
-      aislePart(person, "aisle-arm aisle-arm-left");
-      aislePart(person, "aisle-arm aisle-arm-right");
-      aislePart(person, "aisle-shoulder");
-      if (straight) {
-        aislePart(person, "aisle-leg aisle-leg-left");
-        aislePart(person, "aisle-leg aisle-leg-right");
+      person.className = "aisle-person";
+      photo = document.createElement("img");
+      photo.className = "aisle-photo";
+      photo.src = file;
+      photo.alt = "";
+      person.appendChild(photo);
+      if (order[i] === mineAt) {
+        person.className += " aisle-self";
+        bubble = document.createElement("span");
+        bubble.className = "aisle-bubble";
+        bubble.textContent = "나";
+        person.appendChild(bubble);
       } else {
-        aislePart(person, "aisle-hem");
+        person.setAttribute("aria-hidden", "true");
       }
-      aislePart(person, "aisle-body");
-      aislePart(person, "aisle-head");
       row.appendChild(person);
     }
-    extra = standing - shown;
+    extra = faces.length - order.length;
     if (extra > 0) {
       more = document.createElement("span");
       more.className = "aisle-more";
@@ -838,29 +845,32 @@
       row.appendChild(more);
     }
     row.hidden = false;
-    row.setAttribute("aria-label", "매대 아래 화면 " + String(standing));
+    row.setAttribute("aria-label", "매대 아래 화면 " + String(faces.length));
   }
 
-  function watchAisle() {
+  function watchAisle(face) {
     var row = document.getElementById("aisle");
     var mark, flight, timer;
     if (window.ScarfShelf || !row) return;
+    if (!faceFile(face)) return;
     mark = newAisleMark();
     if (!mark) return;
     flight = null;
 
     function send(stay) {
-      var opts, timed, mine, older;
+      var opts, timed, mine, older, payload;
       if (stay && flight) return;
       if (!stay && flight) {
         older = flight;
         flight = null;
         older.abort();
       }
+      payload = { mark: mark, stay: stay };
+      if (stay) payload.face = face;
       opts = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mark: mark, stay: stay }),
+        body: JSON.stringify(payload),
         keepalive: stay === false
       };
       timed = 0;
@@ -881,11 +891,17 @@
           return response.json();
         })
         .then(function (body) {
-          var standing = body && body.standing;
-          if (typeof standing !== "number" || !Number.isInteger(standing)) return;
-          if (standing < 0 || standing > 24) return;
+          var faces = body && body.faces;
+          var mineAt = body && body.mine;
+          var n;
+          if (!Array.isArray(faces) || faces.length > 24) return;
+          if (typeof mineAt !== "number" || !Number.isInteger(mineAt)) return;
+          if (mineAt < -1 || mineAt >= faces.length) return;
+          for (n = 0; n < faces.length; n++) {
+            if (!faceFile(faces[n])) return;
+          }
           if (document.visibilityState !== "visible") return;
-          paintAisle(row, standing);
+          paintAisle(row, faces, mineAt);
         })
         .catch(function () {})
         .then(function () {
@@ -905,7 +921,7 @@
         return;
       }
       send(false);
-      paintAisle(row, 0);
+      paintAisle(row, [], -1);
     });
     window.addEventListener("pagehide", function () {
       if (timer) window.clearInterval(timer);
@@ -924,9 +940,43 @@
   });
 
   function modalCoversShelf() {
+    var faceModal = document.getElementById("face-modal");
     return (ruleModal.open && ruleModal.matches(":modal"))
       || (resultModal.open && resultModal.matches(":modal"))
-      || (noteModal.open && noteModal.matches(":modal"));
+      || (noteModal.open && noteModal.matches(":modal"))
+      || (faceModal && faceModal.open && faceModal.matches(":modal"));
+  }
+
+  function openFaceGate() {
+    var modal = document.getElementById("face-modal");
+    var box = document.getElementById("face-picks");
+    var face;
+    if (window.ScarfShelf || !modal || !box) {
+      ruleModal.showModal();
+      return;
+    }
+    for (face = 1; face <= 6; face++) {
+      (function (chosen) {
+        var button = document.createElement("button");
+        var photo = document.createElement("img");
+        button.type = "button";
+        button.className = "face-pick";
+        button.setAttribute("aria-label", "얼굴 " + String(chosen));
+        photo.src = faceFile(chosen);
+        photo.alt = "";
+        button.appendChild(photo);
+        button.addEventListener("click", function () {
+          modal.close();
+          watchAisle(chosen);
+          ruleModal.showModal();
+        });
+        box.appendChild(button);
+      })(face);
+    }
+    modal.addEventListener("cancel", function (event) {
+      event.preventDefault();
+    });
+    modal.showModal();
   }
 
   function wheelDistance(event) {
@@ -956,6 +1006,5 @@
 
   render();
   showVisits();
-  watchAisle();
-  ruleModal.showModal();
+  openFaceGate();
 }());

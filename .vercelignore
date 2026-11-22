@@ -1,6 +1,6 @@
 android/build/
 *.apk
-!scarf-20261122-205706.apk
+!scarf-20261122-211611.apk
 *.idsig
 *.mp4
 *.pds

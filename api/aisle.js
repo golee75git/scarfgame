@@ -2,7 +2,7 @@ var laneKey = "scarf-aisle-slots";
 var laneCount = 24;
 var freshMs = 60000;
 var markPattern = /^[a-f0-9]{32}$/;
-var slotPattern = /^([0-9]{1,16})\.([a-f0-9]{32})$/;
+var slotPattern = /^([0-9]{1,16})\.([a-f0-9]{32})\.([1-6])$/;
 var fieldPattern = /^(?:[0-9]|1[0-9]|2[0-3])$/;
 
 function flatSlots(result) {
@@ -18,18 +18,18 @@ function flatSlots(result) {
     found = slotPattern.exec(raw);
     if (!found) continue;
     index = Number(field);
-    slots[index] = { until: Number(found[1]), mark: found[2] };
+    slots[index] = { until: Number(found[1]), mark: found[2], face: Number(found[3]) };
   }
   return slots;
 }
 
-function nextBoard(slots, mark, stay, now) {
+function nextBoard(slots, mark, stay, face, now) {
   var board = [];
   var i, slot, live, home, until;
   home = -1;
   for (i = 0; i < slots.length; i++) {
     slot = slots[i];
-    live = !!(slot && slot.until > now);
+    live = !!(slot && slot.until > now && slot.face >= 1 && slot.face <= 6);
     if (!live) {
       board.push(null);
       continue;
@@ -37,12 +37,12 @@ function nextBoard(slots, mark, stay, now) {
     if (slot.mark === mark) {
       if (home < 0) {
         home = i;
-        board.push({ until: slot.until, mark: slot.mark });
+        board.push({ until: slot.until, mark: slot.mark, face: slot.face });
       } else {
         board.push(null);
       }
     } else {
-      board.push({ until: slot.until, mark: slot.mark });
+      board.push({ until: slot.until, mark: slot.mark, face: slot.face });
     }
   }
   if (!stay) {
@@ -51,12 +51,12 @@ function nextBoard(slots, mark, stay, now) {
   }
   until = now + freshMs;
   if (home >= 0) {
-    board[home] = { until: until, mark: mark };
+    board[home] = { until: until, mark: mark, face: face };
     return board;
   }
   for (i = 0; i < board.length; i++) {
     if (!board[i]) {
-      board[i] = { until: until, mark: mark };
+      board[i] = { until: until, mark: mark, face: face };
       break;
     }
   }
@@ -73,8 +73,8 @@ function writesFor(before, after) {
     prev = before[i];
     if (!next) {
       if (prev) dels.push(String(i));
-    } else if (!prev || prev.until !== next.until || prev.mark !== next.mark) {
-      sets.push({ field: String(i), value: String(next.until) + "." + next.mark });
+    } else if (!prev || prev.until !== next.until || prev.mark !== next.mark || prev.face !== next.face) {
+      sets.push({ field: String(i), value: String(next.until) + "." + next.mark + "." + String(next.face) });
     }
     if (next) live += 1;
   }
@@ -84,7 +84,7 @@ function writesFor(before, after) {
 function readAsk(request) {
   var body = request.body;
   if (typeof body === "string") {
-    if (body.length > 96) return null;
+    if (body.length > 120) return null;
     try {
       body = JSON.parse(body);
     } catch (err) {
@@ -94,7 +94,22 @@ function readAsk(request) {
   if (!body || typeof body !== "object" || Array.isArray(body)) return null;
   if (typeof body.mark !== "string" || !markPattern.test(body.mark)) return null;
   if (typeof body.stay !== "boolean") return null;
-  return { mark: body.mark, stay: body.stay };
+  if (!body.stay) return { mark: body.mark, stay: false, face: 0 };
+  if (typeof body.face !== "number" || !Number.isInteger(body.face)) return null;
+  if (body.face < 1 || body.face > 6) return null;
+  return { mark: body.mark, stay: true, face: body.face };
+}
+
+function roster(board, mark) {
+  var faces = [];
+  var mine = -1;
+  var i;
+  for (i = 0; i < board.length; i++) {
+    if (!board[i]) continue;
+    if (board[i].mark === mark && mine < 0) mine = faces.length;
+    faces.push(board[i].face);
+  }
+  return { faces: faces, mine: mine };
 }
 
 async function redisCall(url, token, command) {
@@ -122,7 +137,7 @@ async function redisCall(url, token, command) {
 }
 
 async function aisle(request, response) {
-  var base, token, ask, listed, now, before, after, change, commands, hset, i, saved;
+  var base, token, ask, listed, now, before, after, change, commands, hset, i, saved, crowd;
   response.setHeader("Cache-Control", "no-store");
   response.setHeader("X-Content-Type-Options", "nosniff");
   if (request.method !== "POST") {
@@ -150,7 +165,7 @@ async function aisle(request, response) {
     }
     before = flatSlots(listed);
     now = Date.now();
-    after = nextBoard(before, ask.mark, ask.stay, now);
+    after = nextBoard(before, ask.mark, ask.stay, ask.face, now);
     change = writesFor(before, after);
     commands = [];
     if (change.dels.length) commands.push(["HDEL", laneKey].concat(change.dels));
@@ -168,7 +183,8 @@ async function aisle(request, response) {
         return;
       }
     }
-    response.status(200).json({ standing: change.live });
+    crowd = roster(after, ask.mark);
+    response.status(200).json({ faces: crowd.faces, mine: crowd.mine });
   } catch (err) {
     response.status(502).json({ error: "store" });
   }
@@ -177,6 +193,7 @@ async function aisle(request, response) {
 aisle.flatSlots = flatSlots;
 aisle.nextBoard = nextBoard;
 aisle.writesFor = writesFor;
+aisle.roster = roster;
 aisle.laneCount = laneCount;
 aisle.freshMs = freshMs;
 module.exports = aisle;
