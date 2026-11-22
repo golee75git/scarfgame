@@ -143,6 +143,54 @@ h1 {
   overflow: visible;
 }
 
+.aisle {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin: 8px 0 0;
+}
+
+.aisle[hidden] { display: none; }
+
+.aisle-person {
+  position: relative;
+  width: 18px;
+  height: 28px;
+  flex: 0 0 auto;
+}
+
+.aisle-person::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--paper);
+}
+
+.aisle-person::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 18px;
+  height: 14px;
+  border-radius: 8px 8px 3px 3px;
+  background: var(--saffron);
+}
+
+.aisle-more {
+  margin: 0 0 2px;
+  color: var(--paper);
+  font-size: 0.85rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
 .grid.is-piled .scarf-card {
   position: absolute;
   width: 42%;

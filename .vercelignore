@@ -1,0 +1,10 @@
+android/build/
+*.apk
+!scarf-20261122-203928.apk
+*.idsig
+*.mp4
+*.pds
+.bkit/
+.vercel
+.env
+.env.*

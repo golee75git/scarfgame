@@ -784,6 +784,118 @@
       .catch(function () {});
   }
 
+  function newAisleMark() {
+    if (!window.crypto || typeof crypto.getRandomValues !== "function") return "";
+    var bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+    var hex = "";
+    var i, piece;
+    for (i = 0; i < bytes.length; i++) {
+      piece = bytes[i].toString(16);
+      hex += piece.length === 1 ? "0" + piece : piece;
+    }
+    return hex.length === 32 ? hex : "";
+  }
+
+  function paintAisle(row, standing) {
+    var shown, extra, i, person, more;
+    while (row.firstChild) row.removeChild(row.firstChild);
+    if (standing < 1) {
+      row.hidden = true;
+      row.removeAttribute("aria-label");
+      return;
+    }
+    shown = standing > 8 ? 8 : standing;
+    for (i = 0; i < shown; i++) {
+      person = document.createElement("span");
+      person.className = "aisle-person";
+      person.setAttribute("aria-hidden", "true");
+      row.appendChild(person);
+    }
+    extra = standing - shown;
+    if (extra > 0) {
+      more = document.createElement("span");
+      more.className = "aisle-more";
+      more.textContent = "+" + String(extra);
+      row.appendChild(more);
+    }
+    row.hidden = false;
+    row.setAttribute("aria-label", "매대 아래 화면 " + String(standing));
+  }
+
+  function watchAisle() {
+    var row = document.getElementById("aisle");
+    var mark, flight, timer;
+    if (window.ScarfShelf || !row) return;
+    mark = newAisleMark();
+    if (!mark) return;
+    flight = null;
+
+    function send(stay) {
+      var opts, timed, mine, older;
+      if (stay && flight) return;
+      if (!stay && flight) {
+        older = flight;
+        flight = null;
+        older.abort();
+      }
+      opts = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mark: mark, stay: stay }),
+        keepalive: stay === false
+      };
+      timed = 0;
+      mine = null;
+      if (stay) {
+        if (typeof AbortController === "function") {
+          mine = new AbortController();
+          opts.signal = mine.signal;
+          timed = window.setTimeout(function () { mine.abort(); }, 4000);
+        } else {
+          mine = { abort: function () {} };
+        }
+        flight = mine;
+      }
+      fetch("api/aisle", opts)
+        .then(function (response) {
+          if (!response.ok) throw new Error("unavailable");
+          return response.json();
+        })
+        .then(function (body) {
+          var standing = body && body.standing;
+          if (typeof standing !== "number" || !Number.isInteger(standing)) return;
+          if (standing < 0 || standing > 24) return;
+          if (document.visibilityState !== "visible") return;
+          paintAisle(row, standing);
+        })
+        .catch(function () {})
+        .then(function () {
+          if (timed) window.clearTimeout(timed);
+          if (mine && flight === mine) flight = null;
+        });
+    }
+
+    function beat() {
+      if (document.visibilityState === "visible") send(true);
+    }
+
+    timer = window.setInterval(beat, 20000);
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") {
+        beat();
+        return;
+      }
+      send(false);
+      paintAisle(row, 0);
+    });
+    window.addEventListener("pagehide", function () {
+      if (timer) window.clearInterval(timer);
+      send(false);
+    });
+    beat();
+  }
+
   ruleModal.addEventListener("cancel", function (event) {
     event.preventDefault();
   });
@@ -826,5 +938,6 @@
 
   render();
   showVisits();
+  watchAisle();
   ruleModal.showModal();
 }());
